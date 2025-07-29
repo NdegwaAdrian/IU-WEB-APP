@@ -5,16 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book Manager</title>
   <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     form { margin-top: 20px; }
-    input { margin: 5px; }
-    .error { color: red; }
+    input { margin: 5px; padding: 5px; }
+    .error { color: red; margin-top: 5px; }
+    .success { color: green; margin-top: 5px; }
+    h2, h3 { margin-top: 30px; }
   </style>
 </head>
 <body>
   <h2>Book Manager</h2>
 
+  <!-- Display Table -->
   <table id="bookTable">
     <thead>
       <tr>
@@ -27,6 +31,7 @@
     <tbody></tbody>
   </table>
 
+  <!-- Update Form -->
   <form id="updateForm">
     <h3>Update Book</h3>
     <input type="text" id="updateTitle" placeholder="Title" required />
@@ -34,86 +39,89 @@
     <input type="number" id="updateYear" placeholder="Year" required />
     <input type="text" id="updateGenre" placeholder="Genre" required />
     <button type="submit">Update</button>
-    <div id="updateError" class="error"></div>
+    <div id="updateMessage" class="error"></div>
   </form>
 
+  <!-- Remove Form -->
   <form id="removeForm">
     <h3>Remove Book</h3>
     <input type="text" id="removeTitle" placeholder="Title to remove" required />
     <button type="submit">Remove</button>
-    <div id="removeError" class="error"></div>
+    <div id="removeMessage" class="error"></div>
   </form>
 
   <script>
+    // Sample book data using JSON structure
     let books = [
       { title: "1984", author: "George Orwell", year: 1949, genre: "Dystopian" },
       { title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960, genre: "Fiction" },
       { title: "The Great Gatsby", author: "F. Scott Fitzgerald", year: 1925, genre: "Classic" }
     ];
 
+    // Display all books in the table
     function displayBooks() {
       const tbody = document.querySelector("#bookTable tbody");
       tbody.innerHTML = "";
       books.forEach(book => {
-        const row = `<tr><td>${book.title}</td><td>${book.author}</td><td>${book.year}</td><td>${book.genre}</td></tr>`;
+        const row = `<tr>
+                      <td>${book.title}</td>
+                      <td>${book.author}</td>
+                      <td>${book.year}</td>
+                      <td>${book.genre}</td>
+                    </tr>`;
         tbody.innerHTML += row;
       });
     }
 
-    function updateBook(title, author, year, genre) {
-      const book = books.find(b => b.title.toLowerCase() === title.toLowerCase());
-      if (book) {
-        book.author = author;
-        book.year = year;
-        book.genre = genre;
-        displayBooks();
-        return true;
-      }
-      return false;
-    }
-
-    function removeBook(title) {
-      const index = books.findIndex(b => b.title.toLowerCase() === title.toLowerCase());
-      if (index !== -1) {
-        books.splice(index, 1);
-        displayBooks();
-        return true;
-      }
-      return false;
-    }
-
+    // Handle updating a book
     document.getElementById("updateForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const title = document.getElementById("updateTitle").value.trim();
       const author = document.getElementById("updateAuthor").value.trim();
       const year = parseInt(document.getElementById("updateYear").value);
       const genre = document.getElementById("updateGenre").value.trim();
-      const errorDiv = document.getElementById("updateError");
-      errorDiv.textContent = "";
+      const messageDiv = document.getElementById("updateMessage");
+      messageDiv.textContent = "";
 
       if (!title || !author || isNaN(year) || !genre) {
-        errorDiv.textContent = "Please fill out all fields correctly.";
+        messageDiv.textContent = "Please fill out all fields correctly.";
         return;
       }
 
-      const success = updateBook(title, author, year, genre);
-      if (!success) {
-        errorDiv.textContent = "Book not found.";
+      const book = books.find(b => b.title.toLowerCase() === title.toLowerCase());
+      if (book) {
+        book.author = author;
+        book.year = year;
+        book.genre = genre;
+        displayBooks();
+        messageDiv.textContent = "Book updated successfully.";
+        messageDiv.className = "success";
+      } else {
+        messageDiv.textContent = "Book not found.";
+        messageDiv.className = "error";
       }
     });
 
+    // Handle removing a book
     document.getElementById("removeForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const titleToRemove = document.getElementById("removeTitle").value.trim();
-      const errorDiv = document.getElementById("removeError");
-      errorDiv.textContent = "";
+      const messageDiv = document.getElementById("removeMessage");
+      messageDiv.textContent = "";
 
-      const success = removeBook(titleToRemove);
-      if (!success) {
-        errorDiv.textContent = "Book not found.";
+      const index = books.findIndex(b => b.title.toLowerCase() === titleToRemove.toLowerCase());
+      if (index !== -1) {
+        books.splice(index, 1);
+        displayBooks();
+        messageDiv.textContent = "Book removed successfully.";
+        messageDiv.className = "success";
+      } else {
+        messageDiv.textContent = "Book not found.";
+        messageDiv.className = "error";
       }
     });
 
+    // Initialize table
     displayBooks();
   </script>
 </body>
