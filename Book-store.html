@@ -60,6 +60,28 @@
       });
     }
 
+    function updateBook(title, author, year, genre) {
+      const book = books.find(b => b.title.toLowerCase() === title.toLowerCase());
+      if (book) {
+        book.author = author;
+        book.year = year;
+        book.genre = genre;
+        displayBooks();
+        return true;
+      }
+      return false;
+    }
+
+    function removeBook(title) {
+      const index = books.findIndex(b => b.title.toLowerCase() === title.toLowerCase());
+      if (index !== -1) {
+        books.splice(index, 1);
+        displayBooks();
+        return true;
+      }
+      return false;
+    }
+
     document.getElementById("updateForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const title = document.getElementById("updateTitle").value.trim();
@@ -74,13 +96,8 @@
         return;
       }
 
-      const book = books.find(b => b.title.toLowerCase() === title.toLowerCase());
-      if (book) {
-        book.author = author;
-        book.year = year;
-        book.genre = genre;
-        displayBooks();
-      } else {
+      const success = updateBook(title, author, year, genre);
+      if (!success) {
         errorDiv.textContent = "Book not found.";
       }
     });
@@ -91,11 +108,8 @@
       const errorDiv = document.getElementById("removeError");
       errorDiv.textContent = "";
 
-      const index = books.findIndex(b => b.title.toLowerCase() === titleToRemove.toLowerCase());
-      if (index !== -1) {
-        books.splice(index, 1);
-        displayBooks();
-      } else {
+      const success = removeBook(titleToRemove);
+      if (!success) {
         errorDiv.textContent = "Book not found.";
       }
     });
